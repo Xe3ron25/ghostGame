@@ -31,14 +31,14 @@ ghost3 = spawn_ghost_y(1)
 ghost4 = spawn_ghost_y(2)
 
 def move_towards(target, ghost):
-    if ghost.x < target.x:
+    if ghost.x <= target.x:
         ghost.x += 2
-    elif ghost.x > target.x + target.width:
+    elif ghost.x >= target.x + target.width:
         ghost.x -= 2
 
-    if ghost.y < target.y:
+    if ghost.y <= target.y:
         ghost.y += 2
-    elif ghost.y > target.y + target.height:
+    elif ghost.y >= target.y + target.height:
         ghost.y -= 2
 
 while run:
