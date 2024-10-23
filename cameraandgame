@@ -6,6 +6,9 @@ clock = pygame.time.Clock()
 screen = pygame.display.set_mode((800,800))
 artifact = pygame.Rect((380,380,20,20))
 
+camPos = pygame.Rect(pygame.Rect(0, 0, 20, 20))
+color = (255, 0, 0)
+
 run = True
 lives = 3
 
@@ -31,21 +34,37 @@ ghost3 = spawn_ghost_y(1)
 ghost4 = spawn_ghost_y(2)
 
 def move_towards(target, ghost):
-    if ghost.x < target.x:
+    if ghost.x <= target.x:
         ghost.x += 2
-    elif ghost.x > target.x + target.width:
+    elif ghost.x >= target.x + target.width:
         ghost.x -= 2
 
-    if ghost.y < target.y:
+    if ghost.y <= target.y:
         ghost.y += 2
-    elif ghost.y > target.y + target.height:
+    elif ghost.y >= target.y + target.height:
         ghost.y -= 2
 
 while run:
     for event in pygame.event.get():
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                run = False
+        if event.type == pygame.MOUSEMOTION:
+            pos = pygame.mouse.get_pos()
+            camPos.x = pos[0]
+            camPos.y = pos[1]
+
+        # click
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            print("Flash")
+            color = (0, 255, 0)
+            # cam flash
+            flash = pygame.draw.circle(screen, (255, 255, 255), (camPos.x, camPos.y), 30)
+
+        # unclick
+        if event.type == pygame.MOUSEBUTTONUP:
+            print("done")
+            color = (255, 0, 0)
+        if event.type == pygame.K_ESCAPE:
+            run = False
+
     if run:
         move_towards(artifact, ghost)
         move_towards(artifact, ghost2)
@@ -71,6 +90,20 @@ while run:
     if lives <= 0:
         run = False
 
+    if camPos.colliderect(ghost) == True:
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            ghost = spawn_ghost_x(1)
+    if camPos.colliderect(ghost2) == True:
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            ghost2 = spawn_ghost_x(2)
+    if camPos.colliderect(ghost3) == True:
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            ghost3 = spawn_ghost_y(1)
+    if camPos.colliderect(ghost4) == True:
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            ghost4 = spawn_ghost_y(2)
+
+
 
     screen.fill((0, 0, 0))
     pygame.draw.rect(screen,(255,0,0) ,artifact)
@@ -78,5 +111,6 @@ while run:
     pygame.draw.rect(screen, (255, 255, 255), ghost2)
     pygame.draw.rect(screen, (255, 255, 255), ghost3)
     pygame.draw.rect(screen, (255, 255, 255), ghost4)
+    cameraPosition = pygame.draw.rect(screen, color, (camPos))
     pygame.display.flip()
     clock.tick(60)
