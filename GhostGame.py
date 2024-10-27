@@ -15,14 +15,19 @@ start_time = pygame.time.get_ticks()
 speed_interval = 5000
 last_speed = pygame.time.get_ticks()
 
-ghostSpeed1 = 2
-ghostSpeed2 = 2
-ghostSpeed3 = 2
-ghostSpeed4 = 2
+ghostSpeed1 = 1
+ghostSpeed2 = 1
+ghostSpeed3 = 1
+ghostSpeed4 = 1
 
 ghost_speed = 0
 
-run = True
+gameState = 1
+#1=menu
+#2=instructions
+#3=game
+#4=endscreen
+
 lives = 3
 
 def spawn_ghost_x(num1):
@@ -57,14 +62,47 @@ def move_towards(target, ghost, ghost_speed):
     elif ghost.y >= target.y + target.height:
         ghost.y -= ghost_speed
 
-while run:
+while gameState == 1: #menu
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                gameState = 5 #full quit
+            if event.key == pygame.K_1: #start
+                gameState = 3
+            if event.key == pygame.K_2: #instructions
+                gameState = 2
+    screen.fill((0, 0, 0))
+    startText = font.render("Start: 1", True, (255,255,255))
+    screen.blit(startText, (260, 300))
+    instructText = font.render("Instructions: 2", True, (255,255,255))
+    screen.blit(instructText, (260, 400))
+    startText = font.render("Quit: esc", True, (255, 255, 255))
+    screen.blit(startText, (260, 600))
+    pygame.display.flip()
+
+while gameState == 2:
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                gameState = 5  # full quit
+            if event.key == pygame.K_1:  # start
+                gameState = 3
+
+    screen.fill((0, 0, 0))
+    startText = font.render("Start: 1", True, (255, 255, 255))
+    screen.blit(startText, (260, 500))
+    startText = font.render("Quit: esc", True, (255, 255, 255))
+    screen.blit(startText, (260, 600))
+    pygame.display.flip()
+
+while gameState == 3:
     elapsed_time = (pygame.time.get_ticks() - start_time) / 1000
     timer_text = font.render(f'Time: {int(elapsed_time)}s', True, (255, 255, 255))
     lives_text = font.render(f"Lives:  {int(lives)}", True, (255,255,255))
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
-                run = False
+                gameState = 5 #full quit
         if event.type == pygame.MOUSEMOTION:
             pos = pygame.mouse.get_pos()
             camPos.x = pos[0]
@@ -84,7 +122,7 @@ while run:
         ghost_speed = ghost_speed + .2
         last_speed = current_time
 
-    if run:
+    if gameState == 3:
         move_towards(artifact, ghost, ghostSpeed1)
         move_towards(artifact, ghost2, ghostSpeed2)
         move_towards(artifact, ghost3, ghostSpeed3)
@@ -163,7 +201,7 @@ while run:
 
         move_towards(artifact, ghost4, ghostSpeed4)
     if lives <= 0:
-        pass
+        gameState = 4
 #camera reaction
     if camPos.colliderect(ghost) == True:
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -249,8 +287,9 @@ while run:
     pygame.display.flip()
     clock.tick(60)
 
-screen.fill((0, 0, 0))
-final_time_text = font2.render(f'You lasted: {int(elapsed_time)}s', True, (255, 255, 255))
-screen.blit(final_time_text, (290, 400))
-pygame.display.flip()
-pygame.time.delay(2000)
+if gameState == 4:
+    screen.fill((0, 0, 0))
+    final_time_text = font2.render(f'You lasted: {int(elapsed_time)}s', True, (255, 255, 255))
+    screen.blit(final_time_text, (260, 400))
+    pygame.display.flip()
+    pygame.time.delay(2000)
