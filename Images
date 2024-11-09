@@ -1,0 +1,142 @@
+import pygame
+import random
+pygame.init()
+clock = pygame.time.Clock()
+
+screen = pygame.display.set_mode((800, 800))
+artifact = pygame.Rect((380, 380, 20, 20))
+
+camPos = pygame.Rect(pygame.Rect(0, 0, 20, 20))
+color = (255, 0, 0)
+
+font = pygame.font.Font(None, 32)
+font2 = pygame.font.Font(None, 64)
+start_time = pygame.time.get_ticks()
+speed_interval = 5000
+last_speed = pygame.time.get_ticks()
+
+ghost_speed = 1
+
+run = True
+lives = 3
+
+# Load and scale images
+flashlight_image = pygame.image.load('flashlightblack-Photoroom.png').convert_alpha()
+flashlight_image = pygame.transform.scale(flashlight_image, (60, 60))
+ghost_image = pygame.image.load('ghost.png').convert_alpha()
+ghost_image = pygame.transform.scale(ghost_image, (50, 50))
+artifact_image = pygame.image.load('Gem-Photoroom.png').convert_alpha()
+artifact_image = pygame.transform.scale(artifact_image, (60, 60))  # Increased size of artifact to 60x60
+
+# Hide the system cursor
+pygame.mouse.set_visible(False)
+
+def spawn_ghost_x(num1):
+    if num1 == 1:
+        ghost_x = random.randint(0, 750)
+        return pygame.Rect((ghost_x, 0, 50, 50))
+    elif num1 == 2:
+        ghost_x = random.randint(0, 750)
+        return pygame.Rect((ghost_x, 750, 50, 50))
+
+def spawn_ghost_y(num1):
+    if num1 == 1:
+        ghost_y = random.randint(0, 750)
+        return pygame.Rect((0, ghost_y, 50, 50))
+    elif num1 == 2:
+        ghost_y = random.randint(0, 750)
+        return pygame.Rect((750, ghost_y, 50, 50))
+
+ghost = spawn_ghost_x(1)
+ghost2 = spawn_ghost_x(2)
+ghost3 = spawn_ghost_y(1)
+ghost4 = spawn_ghost_y(2)
+
+def move_towards(target, ghost, ghost_speed):
+    if ghost.x <= target.x:
+        ghost.x += ghost_speed
+    elif ghost.x >= target.x + target.width:
+        ghost.x -= ghost_speed
+
+    if ghost.y <= target.y:
+        ghost.y += ghost_speed
+    elif ghost.y >= target.y + target.height:
+        ghost.y -= ghost_speed
+
+flash_on = False
+
+while run:
+    elapsed_time = (pygame.time.get_ticks() - start_time) / 1000
+    timer_text = font.render(f'Time: {int(elapsed_time)}s', True, (255, 255, 255))
+    lives_text = font.render(f"Lives:  {int(lives)}", True, (255, 255, 255))
+    for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                run = False
+        if event.type == pygame.MOUSEMOTION:
+            pos = pygame.mouse.get_pos()
+            camPos.x = pos[0] - flashlight_image.get_width() // 2
+            camPos.y = pos[1] - flashlight_image.get_height() // 2
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            flash_on = True
+
+        if event.type == pygame.MOUSEBUTTONUP:
+            flash_on = False
+
+    current_time = pygame.time.get_ticks()
+    if current_time - last_speed >= speed_interval:
+        ghost_speed += 0.2
+        last_speed = current_time
+
+    if run:
+        move_towards(artifact, ghost, ghost_speed)
+        move_towards(artifact, ghost2, ghost_speed)
+        move_towards(artifact, ghost3, ghost_speed)
+        move_towards(artifact, ghost4, ghost_speed)
+
+    if ghost.colliderect(artifact):
+        lives -= 1
+        ghost = spawn_ghost_x(1)
+    if ghost2.colliderect(artifact):
+        lives -= 1
+        ghost2 = spawn_ghost_x(2)
+    if ghost3.colliderect(artifact):
+        lives -= 1
+        ghost3 = spawn_ghost_y(1)
+    if ghost4.colliderect(artifact):
+        lives -= 1
+        ghost4 = spawn_ghost_y(2)
+    if lives <= 0:
+        run = False
+
+    if camPos.colliderect(ghost):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            ghost = spawn_ghost_x(1)
+    if camPos.colliderect(ghost2):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            ghost2 = spawn_ghost_x(2)
+    if camPos.colliderect(ghost3):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            ghost3 = spawn_ghost_y(1)
+    if camPos.colliderect(ghost4):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            ghost4 = spawn_ghost_y(2)
+
+    screen.fill((0, 0, 0))
+    screen.blit(timer_text, (0, 0))
+    screen.blit(lives_text, (700, 0))
+    screen.blit(artifact_image, (artifact.x, artifact.y))
+    screen.blit(ghost_image, (ghost.x, ghost.y))
+    screen.blit(ghost_image, (ghost2.x, ghost2.y))
+    screen.blit(ghost_image, (ghost3.x, ghost3.y))
+    screen.blit(ghost_image, (ghost4.x, ghost4.y))
+    screen.blit(flashlight_image, (camPos.x, camPos.y))
+    pygame.display.flip()
+    clock.tick(60)
+
+screen.fill((0, 0, 0))
+final_time_text = font2.render(f'You lasted: {int(elapsed_time)}s', True, (255, 255, 255))
+screen.blit(final_time_text, (290, 400))
+pygame.display.flip()
+pygame.time.delay(2000)
