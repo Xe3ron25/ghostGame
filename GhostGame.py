@@ -487,6 +487,8 @@ while gameState != 6:
                     pygame.mixer.music.stop()
                     pygame.mixer.music.load("menu.mp3")
                     pygame.mixer.music.play(-1)
+                    start_time = time.time()
+                    gameStart = False
 
         screen.fill((0, 0, 0))
         if laugh == 1:
@@ -530,6 +532,8 @@ while gameState != 6:
                     pygame.mixer.music.stop()
                     pygame.mixer.music.load("menu.mp3")
                     pygame.mixer.music.play(-1)
+                    start_time = time.time()
+                    gameStart = False
 
         if laugh == 1:
             victoryTheme.play()
